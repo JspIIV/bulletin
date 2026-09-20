@@ -1,0 +1,16 @@
+{
+  "name": "bulletin",
+  "version": "1.0.0",
+  "description": "**An announcement is published only if its own cited source backs it.** A trust layer for on-chain announcements, judged from live evidence by GenLayer validators.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}

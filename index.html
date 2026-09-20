@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bulletin — announcements you can trust</title>
+<style>
+  :root{ --bg:#0b0d12; --card:#141822; --line:#252b39; --ink:#eef2f8; --dim:#9aa7bd;
+    --faint:#6b7789; --accent:#5b9cff; --grn:#57d38c; --red:#ff6b6b; --amber:#f5b301; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif}
+  a{color:var(--accent)}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px 70px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .brand{font-weight:800;font-size:20px;letter-spacing:.3px}
+  .brand i{color:var(--accent);font-style:normal}
+  .net{font:12px ui-monospace,monospace;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:5px 10px}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:#1b2130;color:var(--ink);padding:9px 14px}
+  button.primary{background:var(--accent);color:#08111f;border-color:transparent;font-weight:700}
+  button:disabled{opacity:.5;cursor:default}
+  h1{font-size:27px;margin:26px 0 6px;letter-spacing:-.3px}
+  .lead{color:var(--dim);max-width:680px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}
+  label{display:block;font:12px ui-monospace,monospace;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin:12px 0 5px}
+  input,textarea{width:100%;background:#0a0e15;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:10px 11px;font:inherit}
+  textarea{min-height:74px;resize:vertical}
+  .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  .muted{color:var(--faint);font-size:13px}
+  .status{margin-top:10px;color:var(--dim);font-size:14px;min-height:18px}
+  h2{font-size:14px;color:var(--dim);font-family:ui-monospace,monospace;letter-spacing:1px;text-transform:uppercase;margin:28px 0 6px}
+  .card{border-top:1px solid var(--line);padding:16px 0}
+  .card:first-child{border-top:0}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .head{font-weight:700;font-size:17px}
+  .body{color:var(--dim);margin:6px 0}
+  .badge{display:inline-block;font:12px ui-monospace,monospace;font-weight:700;padding:3px 9px;border-radius:999px}
+  .b-pending{background:#2a2410;color:var(--amber)}
+  .b-verified{background:#0f2c1c;color:var(--grn)}
+  .b-refuted{background:#331319;color:var(--red)}
+  .meta{color:var(--faint);font-size:12px;font-family:ui-monospace,monospace;margin-top:6px;word-break:break-all}
+  .why{color:var(--dim);font-size:13px;margin-top:8px;border-left:2px solid var(--line);padding-left:10px}
+  .counts{display:flex;gap:16px;color:var(--dim);font-size:13px;font-family:ui-monospace,monospace;margin-top:4px}
+  footer{color:var(--faint);font-size:13px;border-top:1px solid var(--line);padding-top:18px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Bulletin<i>.</i> announcements you can trust</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="net">GenLayer Asimov</span>
+      <button id="connect">Connect wallet</button>
+    </div>
+  </header>
+
+  <h1>An announcement is published only if its own cited source backs it.</h1>
+  <p class="lead">Anyone can post an announcement, but it stays unverified until the contract
+    fetches the page it names and a round of GenLayer validators agrees the source supports the
+    claim. Only <b>VERIFIED</b> bulletins are meant to be trusted. A source that contradicts the
+    claim marks it <b>REFUTED</b>; one that cannot be read leaves it <b>PENDING</b>.</p>
+
+  <h2>Post an announcement</h2>
+  <section>
+    <label>Headline</label>
+    <input id="headline" placeholder="Foundation awards 50,000 GEN grant to Project Orbit" />
+    <label>Body (optional)</label>
+    <textarea id="body" placeholder="A sentence or two of detail."></textarea>
+    <label>Source URL (the page this can be checked against)</label>
+    <input id="url" placeholder="https://…" />
+    <div class="actions">
+      <button class="primary" id="post">Post (starts PENDING)</button>
+      <span class="muted">Posting binds you as the author. It is not published until it is verified.</span>
+    </div>
+    <div class="status" id="pstatus"></div>
+  </section>
+
+  <h2>The board</h2>
+  <div class="counts" id="counts"></div>
+  <section id="board"><div class="muted">Reading the board from chain…</div></section>
+
+  <footer>
+    Contract: <a id="exp" href="#" target="_blank" rel="noopener">on the Asimov explorer</a> ·
+    <a href="https://github.com/JspIIV/bulletin" target="_blank" rel="noopener">source</a> ·
+    reads need no wallet; posting and verifying are transactions on GenLayer Asimov.
+  </footer>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/genlayer-js@1.1.8";
+import { testnetAsimov } from "https://esm.sh/genlayer-js@1.1.8/chains";
+
+const CONTRACT = "0x9CBD9AebeE96a4658Bc5fb2D57afA0659881E871";
+const CHAIN_ID_HEX = "0x107d";
+const CHAIN_PARAMS = { chainId: CHAIN_ID_HEX, chainName: "GenLayer Asimov",
+  nativeCurrency:{name:"GEN",symbol:"GEN",decimals:18},
+  rpcUrls:["https://rpc-asimov.genlayer.com"], blockExplorerUrls:["https://explorer-asimov.genlayer.com"] };
+const EXPLORER = "https://explorer-asimov.genlayer.com";
+const ROUND_GAS = 8_000_000n, GAS_CAP = 95_000_000n, WALLET_COMPUTES=["nonce","type","chainId"];
+
+const reader = createClient({ chain: testnetAsimov });
+let account = null;
+const $ = id => document.getElementById(id);
+const short = a => a?`${String(a).slice(0,6)}…${String(a).slice(-4)}`:"";
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const transient = e => /revert|-32005|-32006|-32603|at capacity|gas rate|rate limit|backpressure|fetch failed|timeout|502|503|429/i
+  .test(String(e?.details||e?.shortMessage||e?.message||e));
+
+$("exp").href = EXPLORER + "/address/" + CONTRACT;
+
+async function read(fn, args=[]) {
+  for (let i=1;i<=4;i++){ try { const raw = await reader.readContract({address:CONTRACT,functionName:fn,args});
+      try{return JSON.parse(raw)}catch{return raw} } catch(e){ if(!transient(e))throw e; await sleep(1500*i); } }
+}
+function walletFriendly(p){ return { ...p, request: async payload=>{
+  if(payload?.method!=="eth_sendTransaction") return p.request(payload);
+  const tx={...(payload.params?.[0]??{})}; for(const k of WALLET_COMPUTES) delete tx[k];
+  if(BigInt(tx.gas??0)<ROUND_GAS) tx.gas="0x"+ROUND_GAS.toString(16);
+  if(BigInt(tx.gas??0)>GAS_CAP) tx.gas="0x"+GAS_CAP.toString(16);
+  try{ return await p.request({method:"eth_sendTransaction",params:[tx]}); }
+  catch(err){ if(err?.code!==-32602||tx.gasPrice===undefined) throw err; const t={...tx}; delete t.gasPrice;
+    return p.request({method:"eth_sendTransaction",params:[t]}); } } }; }
+async function useGenLayer(){ const cur=await window.ethereum.request({method:"eth_chainId"});
+  if(String(cur).toLowerCase()===CHAIN_ID_HEX) return;
+  try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:CHAIN_ID_HEX}]}); }
+  catch(err){ if(err&&(err.code===4902||err.code===-32603)){ await window.ethereum.request({method:"wallet_addEthereumChain",params:[CHAIN_PARAMS]}); return; } throw err; } }
+function client(){ return createClient({ chain: testnetAsimov, account, provider: walletFriendly(window.ethereum) }); }
+async function ensureWallet(){ if(!window.ethereum) throw new Error("No browser wallet found. Reading works without one; posting and verifying need MetaMask on GenLayer Asimov.");
+  if(!account){ const a=await window.ethereum.request({method:"eth_requestAccounts"}); account=a[0]; $("connect").textContent=short(account); } await useGenLayer(); }
+$("connect").onclick=()=>ensureWallet().catch(e=>alert(e.message||e));
+
+async function sendWrite(fn, args){
+  const c=client();
+  for(let attempt=1;;attempt++){ try{ return await c.writeContract({address:CONTRACT,functionName:fn,args,value:0n}); }
+    catch(e){ if(!transient(e)||attempt>=6) throw e; await sleep(4000*attempt); } }
+}
+
+/* ---- post ---- */
+$("post").onclick = async () => {
+  try {
+    await ensureWallet();
+    const headline=$("headline").value.trim(), body=$("body").value.trim(), url=$("url").value.trim();
+    if(!headline){ $("pstatus").textContent="Give the announcement a headline."; return; }
+    if(!/^https?:\/\//.test(url)){ $("pstatus").textContent="Give an http(s) source URL."; return; }
+    $("pstatus").textContent="Posting… approve it in your wallet.";
+    await sendWrite("post",[headline,body,url]);
+    $("pstatus").textContent="Posted. It is PENDING until someone verifies it below.";
+    $("headline").value=""; $("body").value=""; $("url").value="";
+    await sleep(4000); await loadBoard();
+  } catch(e){ $("pstatus").textContent="Post failed: "+(e?.shortMessage||e?.message||e); }
+};
+
+/* ---- verify ---- */
+async function verify(id){
+  const el=$("v-"+id);
+  try{
+    await ensureWallet();
+    if(el) el.textContent="Verifying…";
+    const before=JSON.stringify((await read("get",[String(id)])));
+    await sendWrite("verify",[String(id)]);
+    for(let i=0;i<90;i++){ await sleep(4000);
+      const now=await read("get",[String(id)]);
+      if(el) el.textContent=`Round running… ${(i+1)*4}s`;
+      if(JSON.stringify(now)!==before){ await loadBoard(); return; } }
+    if(el) el.textContent="Still settling; reload in a minute.";
+  }catch(e){ if(el) el.textContent="Verify failed: "+(e?.shortMessage||e?.message||e); }
+}
+
+/* ---- board ---- */
+function badge(status){
+  const cls = status==="VERIFIED"?"b-verified":status==="REFUTED"?"b-refuted":"b-pending";
+  return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+async function loadBoard(){
+  const size = await read("size",[]).catch(()=>null);
+  if(size) $("counts").textContent = `${size.total} posted · ${size.verified} verified · ${size.refuted} refuted · ${size.pending} pending`;
+  const data = await read("page",["0","30"]).catch(()=>null);
+  const items = (data && data.items) || [];
+  if(!items.length){ $("board").innerHTML='<div class="muted">No announcements yet. Post one above.</div>'; return; }
+  $("board").innerHTML = items.map(b=>`
+    <div class="card">
+      <div class="row">${badge(b.status)}<span class="head">${esc(b.headline)}</span></div>
+      ${b.body?`<div class="body">${esc(b.body)}</div>`:""}
+      <div class="meta">source: <a href="${esc(b.source_url)}" target="_blank" rel="noopener">${esc(b.source_url)}</a></div>
+      <div class="meta">by ${esc((b.poster||"").slice(0,10))}… · #${esc(b.id)}${b.checks?` · checked ${esc(b.checks)}×`:""}</div>
+      ${b.reason?`<div class="why"><b>${esc(b.decision)}</b> — ${esc(b.reason)}${b.quote?`<br><span class="muted">“${esc(b.quote)}”</span>`:""}</div>`:""}
+      ${b.status==="PENDING"?`<div class="actions"><button id="v-${esc(b.id)}" data-id="${esc(b.id)}" class="verify primary">Verify against its source</button></div>`:""}
+    </div>`).join("");
+  document.querySelectorAll(".verify").forEach(btn=>btn.onclick=()=>verify(btn.getAttribute("data-id")));
+}
+
+loadBoard();
+</script>
+</body>
+</html>

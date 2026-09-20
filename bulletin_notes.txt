@@ -1,0 +1,7 @@
+An announcement is only as trustworthy as its source, and on chain there is usually no source at all: a string is posted, signed by an address, and read on faith. A fake token sale looks exactly like a real grant.
+
+Bulletin makes the check the price of publication. post(headline, body, source_url) records an announcement and the page it comes from; the poster is bound to the caller and it starts PENDING. verify(id), open to anybody, fetches that page itself and a GenLayer validator round decides one field: does the source back the claim? SUPPORTED turns it VERIFIED, NOT_SUPPORTED turns it REFUTED, UNREADABLE leaves it PENDING. Other contracts read is_verified(id) and trust only VERIFIED bulletins.
+
+The deciding evidence is the page the contract fetched, not the poster's word, and an unreachable page is never published.
+
+Proven on Asimov: a real grant announcement whose source confirms it is VERIFIED; a fake token-sale announcement whose cited source denies any token is REFUTED.
