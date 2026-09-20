@@ -1,0 +1,113 @@
+{
+  "proved_at": "2026-09-20T09:38:40.641Z",
+  "network": "genlayer testnet asimov",
+  "contract": "0x9CBD9AebeE96a4658Bc5fb2D57afA0659881E871",
+  "real": {
+    "id": "0",
+    "poster": "0x80519c53f10d731e4ff83a7d9acd69cf98da6258",
+    "posted_at": "2026-09-20T09:36:16+00:00",
+    "headline": "Foundation awards 50,000 GEN grant to Project Orbit",
+    "body": "The grants committee approved a 50,000 GEN grant to Project Orbit, paid across three milestones.",
+    "source_url": "https://raw.githubusercontent.com/JspIIV/bulletin/master/docs/press/grant-awarded.txt",
+    "status": "VERIFIED",
+    "checks": 1,
+    "decision": "SUPPORTED",
+    "reason": "The page explicitly states the Foundation awarded a 50,000 GEN grant to Project Orbit, to be disbursed across three milestones, directly confirming the announcement.",
+    "quote": "The Foundation has awarded a 50,000 GEN grant to Project Orbit to build open tooling for the ecosystem. The grant was approved by the grants committee and will be disbursed across three milestones.",
+    "verified_at": "2026-09-20T09:36:46+00:00"
+  },
+  "fake": {
+    "id": "1",
+    "poster": "0x80519c53f10d731e4ff83a7d9acd69cf98da6258",
+    "posted_at": "2026-09-20T09:36:31+00:00",
+    "headline": "The Foundation has launched token $FDN, public sale live now",
+    "body": "Buy $FDN before the price rises. Sale ends soon.",
+    "source_url": "https://raw.githubusercontent.com/JspIIV/bulletin/master/docs/press/scam-warning.txt",
+    "status": "REFUTED",
+    "checks": 1,
+    "decision": "NOT_SUPPORTED",
+    "reason": "The page explicitly states that the Foundation has not launched a token and any reports of a token sale are false and a scam.",
+    "quote": "The Foundation has NOT launched any token and is not running a token sale of any kind.",
+    "verified_at": ""
+  },
+  "is_verified": {
+    "real": {
+      "exists": true,
+      "id": "0",
+      "verified": true,
+      "status": "VERIFIED"
+    },
+    "fake": {
+      "exists": true,
+      "id": "1",
+      "verified": false,
+      "status": "REFUTED"
+    }
+  },
+  "size": {
+    "total": 2,
+    "pending": 0,
+    "verified": 1,
+    "refuted": 1
+  },
+  "checks": [
+    {
+      "label": "two announcements were posted",
+      "ok": true
+    },
+    {
+      "label": "the real announcement is SUPPORTED by its source",
+      "ok": true
+    },
+    {
+      "label": "and it becomes VERIFIED",
+      "ok": true
+    },
+    {
+      "label": "the fake announcement is NOT_SUPPORTED by its source",
+      "ok": true
+    },
+    {
+      "label": "and it becomes REFUTED, never published",
+      "ok": true
+    },
+    {
+      "label": "is_verified gates true only for the real one",
+      "ok": true
+    },
+    {
+      "label": "the register counts one verified and one refuted",
+      "ok": true
+    }
+  ],
+  "transcript": [
+    "Bulletin, proven on GenLayer Asimov",
+    "  contract 0x9CBD9AebeE96a4658Bc5fb2D57afA0659881E871",
+    "",
+    "  posted #0 (real grant announcement) (12s)",
+    "  posted #1 (fake $FDN token announcement) (12s)",
+    "",
+    "verifying #0 against its cited source...",
+    "  verified #0 (36s)",
+    "  decision SUPPORTED, status VERIFIED",
+    "  reason: The page explicitly states the Foundation awarded a 50,000 GEN grant to Project Orbit, to be disbursed across three milestones, directly confirming the announcement.",
+    "",
+    "verifying #1 against its cited source (a scam warning that denies any token)...",
+    "  verified #1 (60s)",
+    "  decision NOT_SUPPORTED, status REFUTED",
+    "  reason: The page explicitly states that the Foundation has not launched a token and any reports of a token sale are false and a scam.",
+    "",
+    "is_verified(#0) = true ; is_verified(#1) = false",
+    "register: {\"total\":2,\"pending\":0,\"verified\":1,\"refuted\":1}",
+    "",
+    "  ok   two announcements were posted",
+    "  ok   the real announcement is SUPPORTED by its source",
+    "  ok   and it becomes VERIFIED",
+    "  ok   the fake announcement is NOT_SUPPORTED by its source",
+    "  ok   and it becomes REFUTED, never published",
+    "  ok   is_verified gates true only for the real one",
+    "  ok   the register counts one verified and one refuted",
+    "",
+    "7 checks. It published only the announcement its own source backed."
+  ]
+}
